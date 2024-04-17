@@ -12,7 +12,7 @@ import random
 import time as time_lib
 from typing import Dict, Tuple, Union
 from urllib.parse import quote
-
+import traceback
 from baiduspider._spider import BaseSpider
 from baiduspider.models.baike import BaikeResult
 from baiduspider.models.jingyan import JingyanResult
@@ -441,12 +441,13 @@ class BaiduSpider(BaseSpider):
             content = self._get_response(url, proxies)
             results = self.parser.parse_web(content, exclude=exclude)
         except Exception as err:
+            traceback.print_exc()
             error = err
         finally:
             self._handle_error(error, "BaiduSpider", "parse-web")
-        pages = self._calc_pages(results["total"], self.RESULTS_PER_PAGE["web"])
+        pages = self._calc_pages(10, self.RESULTS_PER_PAGE["web"])
         return WebResult._build_instance(
-            plain=results["results"], pages=pages, total=results["total"]
+            plain=results["results"], pages=pages, total=10
         )
 
     def search_pic(self, query: str, pn: int = 1, proxies: Dict = None) -> PicResult:

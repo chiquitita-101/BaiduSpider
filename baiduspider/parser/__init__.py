@@ -30,24 +30,6 @@ class Parser(BaseSpider):
         soup = BeautifulSoup(content, "html.parser")
         if not soup.find("div", id="content_left"):
             return {"results": [], "pages": 0, "total": 0}
-        # 获取搜索结果总数
-        tmp1 = soup.findAll("div", class_="result-molecule")
-        idx_ = 0
-        ele = None
-        while not ele and idx_ < len(tmp1):
-            tmp = tmp1[idx_].findAll("span")
-            found = False
-            for t in tmp:
-                if "百度为您找到相关结果" in t.text:
-                    ele = t
-                    found = True
-                    break
-            if found:
-                break
-            idx_ += 1
-        num = int(
-            str(ele.text).strip("百度为您找到相关结果").strip("约").strip("个").replace(",", "")
-        )
         # 定义预结果（运算以及相关搜索）
         pre_results = []
         # 预处理新闻
@@ -150,7 +132,7 @@ class Parser(BaseSpider):
         # 预处理源码
         soup = BeautifulSoup(content, "html.parser")
         results = []
-        for res in soup.findAll("div", class_="result-op"):
+        for res in soup.findAll("div", class_="result"):
             try:
                 if res["srcid"] in ["1599"]:
                     results.append(res)
@@ -293,11 +275,9 @@ class Parser(BaseSpider):
         # 设置最终结果
         result = pre_results
         result.extend(res)
+
         return {
             "results": result,
-            # 最大页数
-            # "pages": max(pages),
-            "total": num,
         }
 
     @handle_err
